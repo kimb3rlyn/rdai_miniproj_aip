@@ -1,0 +1,31 @@
+version: '1.0'
+
+services:
+  rdai_miniproj_aip:
+    build: 
+      context: ./
+      args:
+        UID: 1001
+        GID: 1001
+    image: rdai_miniproj_aip:v1.0
+    container_name: rdai_miniproj_aip
+    environment:
+      NVIDIA_VISIBLE_DEVICES: 0
+      CUDA_VISIBLE_DEVICES: 0
+    ports:
+      - 5002:5002
+    volumes:
+      - ./:/workspace
+    ulimits:
+      memlock: -1 # set upper limit for how much memory is locked for the container (-1 means lock as much as the container uses)
+    shm_size: 32gb # set upper limit for how much shared memory container can use
+    ipc: "host"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    working_dir: /workspace/src
+    command: ["uvicorn", "api_service:app", "--host", "0.0.0.0", "--port", "5002"]
